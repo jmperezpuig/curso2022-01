@@ -23,4 +23,6 @@ Revisar también si el nombre y apellidos son correctos.
 | Alberto | Martínez | Alberto Martínez | Tisho99 | SI | SI |
 | Jordi | Deumal | jordiapen | jordiapen | SI | SI |
 | Miguel | Martínez | MiguelM | MMartinezDA | SI | SI |
+| Manuel | Arrás | Linares | ManuelArrás | ManuelArras | SI | SI
 | Inmaculada | Restoy | Inmaculada#5639 | inmaculadaRestoy | SI | SI |
+
