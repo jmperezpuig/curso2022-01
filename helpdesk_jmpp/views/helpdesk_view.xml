@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_helpdesk_ticket_tree" model="ir.ui.view">
+        <field name="name">view.helpdesk_ticket.tree</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="arch" type="xml">
+            <tree string='Ticket'>
+                <!-- Add your fields here -->
+                <field name='nombre'/>
+                <field name='fecha'/>
+                <field name='estado'/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_helpdesk_ticket_form" model="ir.ui.view">
+        <field name="name">view.helpdesk_ticket.form</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="arch" type="xml">
+            <form string="Ticket">
+                <header>
+                    <field name="estado" widget="statusbar"/>
+                </header>
+                
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="nombre"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="fecha"/>
+                        <field name="fecha_limite"/>
+                    </group>
+                    <group>
+                        <field name="asignado"/>
+                        <field name="tiempo"/>
+                    </group>
+                    <notebook>
+                        <page string="Descripción">
+                            <field name="descripcion"/>
+                        </page>
+                        <page string="Calidad">
+                            
+                            <label for="accion_correctiva"/>
+                            <field name="accion_correctiva"/>
+                            <group string='Acción Preventiva'>
+                                <field name="accion_preventiva" nolabel='1'/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>
