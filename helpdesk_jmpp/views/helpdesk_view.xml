@@ -8,7 +8,7 @@
                 <!-- Add your fields here -->
                 <field name='nombre'/>
                 <field name='fecha'/>
-                <field name='estado'/>
+                <field name='state'/>
             </tree>
         </field>
     </record>
@@ -19,7 +19,18 @@
         <field name="arch" type="xml">
             <form string="Ticket">
                 <header>
-                    <field name="estado" widget="statusbar"/>
+                    <!-- cambia el estado a asignado y pone a true el campo asignado. Solo visible para nuevo -->
+                    <button string='Asignar' name='asignar' type='object' states='nuevo'/>
+                    <!-- ticket en proceso. Solo visible para estado=asignado -->
+                    <button string='En proceso' name='proceso' type='object' states='asignado'/>
+                    <!-- ticket pendiente. Solo visible para estados=en proceso y asignado -->
+                    <button string='Pendiente' name='pendiente' type='object' states='proceso,asignado'/>
+                    <!-- Finalizar. Visible en cualquier estado salvo en cancelado y finalizado -->
+                    <button string='Finalizar' name='finalizar' type='object' states='nuevo,asignado,proceso,pendiente,resuelto'/>
+                    <!-- Cancelar. Solo visible si no está cancelado o finalizado -->
+                    <button string='Cancelar' name='cancelar' type='object' states='nuevo,asignado,proceso,pendiente,resuelto'/>
+
+                    <field name="state" widget="statusbar"/>
                 </header>
                 
                 <sheet>
@@ -28,17 +39,35 @@
                             <field name="nombre"/>
                         </h1>
                     </div>
+                    <div>
                     <group>
-                        <field name="fecha"/>
-                        <field name="fecha_limite"/>
+                        <group>
+                            <field name="fecha"/>
+                            <field name="fecha_limite"/>
+                        </group>
+                        <group>
+                            <!-- añadimmos para ver el usuario -->
+                            <field name="user_id"/> 
+                            <field name="asignado"/>
+                            <field name="ticket_qty"/><!-- para hacer lo del final del v7 -->
+                            <field name="tiempo"/>
+                        </group>
                     </group>
-                    <group>
-                        <field name="asignado"/>
-                        <field name="tiempo"/>
-                    </group>
+                    </div>
                     <notebook>
                         <page string="Descripción">
                             <field name="descripcion"/>
+                            <!-- para hacer lo del final del v7 -->
+                            <group>
+                                <field name="tag_name"/>
+                                <button name="create_tag" type="object" string="Crear tag"/>
+                            </group>
+                            <!-- añadimos para ver los tag -->
+                            <field name="tag_ids"/>
+                        </page>
+                        <!-- añadimos page para las Actions -->
+                        <page string='Acciones'>
+                            <field name="action_ids"/>
                         </page>
                         <page string="Calidad">
                             
