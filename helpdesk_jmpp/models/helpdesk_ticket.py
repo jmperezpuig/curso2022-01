@@ -95,25 +95,25 @@ class HelpdeskTicket(models.Model):
     def asignar(self):
         self.ensure_one()
         self.write({
-            'estado': 'asignado',
+            'state': 'asignado',
             'asignado': True
         })
 
     def proceso(self):
         self.ensure_one()
-        self.estado = 'proceso'
+        self.state = 'proceso'
 
     def pendiente(self):
         self.ensure_one()
-        self.estado = 'pendiente'
+        self.state = 'pendiente'
 
     def finalizar(self):
         self.ensure_one()
-        self.estado = 'resuelto'
+        self.state = 'resuelto'
 
     def cancelar(self):
         self.ensure_one()
-        self.estado = 'cancelado'
+        self.state = 'cancelado'
 
     # hacer que el campo asignado sea calculado:
     @api.depends('user_id')
@@ -150,6 +150,6 @@ class HelpdeskTicket(models.Model):
         # tag = self.env['helpdesk.ticket.tag'].create({'name': self.tag_name})
         # self.write({'tag_ids': [(6,0,tag.ids)]}) # se añaden todos los id a la relacion
         self.tag_name = False # para limpiar el cuadro de texto
-    
+
 
     

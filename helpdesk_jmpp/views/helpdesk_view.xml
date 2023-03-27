@@ -47,10 +47,10 @@
                         </group>
                         <group>
                             <!-- añadimmos para ver el usuario -->
-                            <field name="user_id"/> 
+                            <field name="user_id" options="{'no_create': True, 'no_open': True}"/> 
                             <field name="asignado"/>
                             <field name="ticket_qty"/><!-- para hacer lo del final del v7 -->
-                            <field name="tiempo"/>
+                            <field name="tiempo" widget='float_time'/>
                         </group>
                     </group>
                     </div>
@@ -62,12 +62,24 @@
                                 <field name="tag_name"/>
                                 <button name="create_tag" type="object" string="Crear tag"/>
                             </group>
-                            <!-- añadimos para ver los tag -->
-                            <field name="tag_ids"/>
+                            <!-- añadimos para ver los tag desde Ticket -->
+                            <field name="tag_ids" context="{'form_view_ref': 'helpdesk_jmpp.view_helpdesk_ticket_tag_simple_form'}"/>
                         </page>
                         <!-- añadimos page para las Actions -->
                         <page string='Acciones'>
-                            <field name="action_ids"/>
+                            <field name="action_ids" context="{'default_date': fecha}">
+                                <!-- para la vista embebida -->
+                                <tree editable='bottom'>
+                                    <field name="name"/>
+                                    <field name="date"/>
+                                </tree>
+                                <form editable='bottom'>
+                                    <group name='action'>
+                                        <field name="name"/>
+                                        <field name="date"/>
+                                    </group>
+                                </form>
+                            </field>
                         </page>
                         <page string="Calidad">
                             
@@ -80,6 +92,86 @@
                     </notebook>
                 </sheet>
             </form>
+        </field>
+    </record>
+
+    <record id="view_helpdesk_ticket_search" model="ir.ui.view">
+        <field name="name">view.helpdesk_ticket.search</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="arch" type="xml">
+            <search string='Ticket'>
+                <!-- Add your fields here -->
+                <field name='nombre'/>
+                <field name='user_id'/>
+                <filter string='Asignados' name='asignado' domain="[('user_id','!=',False)]"/>
+                <filter string='Sin fecha límite' name='fecha_limite' domain="[('fecha_limite','=',False)]"/>
+                <filter string='Fecha límite' name='fecha_limite' context="{'group_by': 'fecha_limite'}"/>
+                <filter string='Asignado a' name='user_id' context="{'group_by': 'user_id'}"/>
+            </search>
+        </field>
+    </record>
+
+
+    <record id="view_helpdesk_ticket_pivot" model="ir.ui.view">
+        <field name="name">view.helpdesk_ticket.pivot</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="arch" type="xml">
+            <pivot string='Ticket'>
+                <field name='user_id' type='row'/>
+                <field name='fecha' interval='month' type='col'/>
+                <field name='tiempo' type='measure' widget='float_time'/>
+            </pivot>
+        </field>
+    </record>
+
+
+    <record id="view_helpdesk_ticket_graph" model="ir.ui.view">
+        <field name="name">view.helpdesk_ticket.graph</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="arch" type="xml">
+            <graph string='Ticket'>
+                <field name='user_id'/>
+                <field name='tiempo' type='measure' widget='float_time'/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="view_helpdesk_ticket_calendar" model="ir.ui.view">
+        <field name="name">view.helpdesk_ticket.calendar</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="arch" type="xml">
+            <calendar string='Tickets' date_start='fecha' color='user_id' hide_time='true' event_limit='5'>
+                <field name='user_id' avatar_field='image_128'/>
+                <field name='nombre'/>
+                <field name='user_id' filters='1' invisible='1'/>
+            </calendar>
+        </field>
+    </record>
+
+    <record id="view_helpdesk_ticket_kanban" model="ir.ui.view">
+        <field name="name">view.helpdesk_ticket.kanban</field>
+        <field name="model">helpdesk.ticket</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by='user_id'>
+                <templates>
+                    <t t-name='kanban-box'>
+                        <div t-attf-class='oe_kanban_content oe_kanban_global_click'>
+                            <div class='o_kanban_record_title'>
+                                <strong><field name='nombre'/></strong>
+                            </div>
+                            <div class='o_kanban_record_subtitle'>
+                                <field name='fecha'/>
+                                <field name='tiempo'/>
+                            </div>
+                            <div class='o_kanban_record_bottom'>
+                                <div class='oe_kanban_bottom_right'>
+                                    <field name='user_id' widget='many2one_avatar_user'/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
         </field>
     </record>
 
