@@ -6,14 +6,12 @@
     "author": "AEODOO, Odoo Community Association (OCA)",
     "license": "AGPL-3",
     "depends": [
-        "base",
+        "sale",
+        "helpdesk_jmpp",
     ],
     "data": [
-        "security/helpdesk_security.xml",
-        "security/ir.model.access.csv",
-        "views/helpdesk_menu.xml",
-        "views/helpdesk_tag_view.xml",
-        "views/helpdesk_view.xml",
-        "data/delete_tag_cron.xml", 
+        'views/helpdesk_ticket_view.xml',
+        'views/product_product.xml',
+        'views/sale_order_view.xml',
     ],
 }

@@ -72,11 +72,13 @@
                                 <tree editable='bottom'>
                                     <field name="name"/>
                                     <field name="date"/>
+                                    <field name="time"/>
                                 </tree>
                                 <form editable='bottom'>
                                     <group name='action'>
                                         <field name="name"/>
                                         <field name="date"/>
+                                        <field name="time"/>
                                     </group>
                                 </form>
                             </field>

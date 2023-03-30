@@ -1,5 +1,8 @@
-from odoo import  models,fields,api
+from odoo import  models,fields,api,_
+from odoo.exceptions import ValidationError
+from datetime import timedelta
 
+# ====================================================================================
 class HelpdeskTicketAction(models.Model):
     _name = 'helpdesk.ticket.action'  
     _description = 'Action'
@@ -11,6 +14,11 @@ class HelpdeskTicketAction(models.Model):
         comodel_name='helpdesk.ticket', 
         string='Ticket')
     
+    # ----------- v11 ------------
+    time = fields.Float(string='Tiempo para la acción')
+    
+
+# ====================================================================================
 class HelpdeskTicketTag(models.Model):
     _name = 'helpdesk.ticket.tag'  
     _description = 'Tag'
@@ -24,10 +32,35 @@ class HelpdeskTicketTag(models.Model):
         column1='tag_id',
         column2='ticket_id',
         string='Tickets')
+    
+    @api.model 
+    def cron_delete_tag(self):
+        tags_sin_ticket = self.search([('ticket_ids', '=', False)])
+        tags_sin_ticket.unlink()
 
+# ====================================================================================
 class HelpdeskTicket(models.Model):
     _name = 'helpdesk.ticket'  
     _description = 'Ticket'
+
+    # ---------------- v10 --------------------
+
+    # def _date_default_today(self):
+    #     return fields.Date.today()
+
+
+    @api.model
+    def default_get(self, default_fields):
+        vals = super(HelpdeskTicket,self).default_get(default_fields)
+        vals.update({
+            'fecha': fields.Date.today(),
+            'tiempo': 24 # para que la fecha limmite sea un dia mas que la actual
+            # 'tiempo': fields.Date.today() + timedelta(days=1)
+        })
+        return vals
+
+    # ----------------------------------------
+
 
     nombre = fields.Char(
         string='Nombre',
@@ -36,6 +69,8 @@ class HelpdeskTicket(models.Model):
         string='Descripcion')
     fecha = fields.Date(
         string='Fecha')
+        #default=_date_default_today)
+    
     
     # un ticket puede tener muchas accciones. Son 1:N (una factura puede tener muchas línas)
     action_ids = fields.One2many(
@@ -68,9 +103,12 @@ class HelpdeskTicket(models.Model):
                    ('resuelto', 'Resuelto'), 
                    ('cancelado', 'Cancelado')])
     
-    # Tiempo dedicado (en horas)
+    # Tiempo dedicado (en horas). Añadimos para el v11 compute e inverse
     tiempo = fields.Float(
-        string='Tiempo')
+        string='Tiempo',
+        compute='_get_time',
+        inverse='_set_time', # metodo q se exe cuando se escribe el campo tiempo
+        search='_search_time')
     
     # Asignado (tipo check), nos piden que sea solo de lectura
     asignado = fields.Boolean(
@@ -115,6 +153,12 @@ class HelpdeskTicket(models.Model):
         self.ensure_one()
         self.state = 'cancelado'
 
+    # v12- necesitamos otro metodo cancelar para cancelar mas de uno
+    def cancelar_multi(self):
+        for ticket in self:
+            ticket.cancelar()
+            
+
     # hacer que el campo asignado sea calculado:
     @api.depends('user_id')
     def _compute_asignado(self):
@@ -137,7 +181,7 @@ class HelpdeskTicket(models.Model):
         string='Tag Name')
     
 
-    def create_tag(self):
+    def create_tag_antesdelv10(self):
         self.ensure_one() # pq estará en el form de un ticket
         # opcion 1
         self.write({
@@ -152,4 +196,48 @@ class HelpdeskTicket(models.Model):
         self.tag_name = False # para limpiar el cuadro de texto
 
 
+    # -------------- video 10 -----------------------
+
+    @api.constrains('tiempo')
+    def _verificar_time_positive(self):
+        for ticket in self:
+            if ticket.tiempo and ticket.tiempo < 0:
+                raise ValidationError(_("The time can not be negative"))
     
+    @api.onchange('fecha','tiempo')
+    def _onchange_date(self):
+        self.fecha_limite = self.fecha and self.fecha + timedelta(hours=self.tiempo)
+
+
+    # modificar el botón para crear etiqueta, pasando nombre y relacion con el ticket
+    def create_tag(self):
+        self.ensure_one()
+        action = self.env.ref('helpdesk_jmpp.action_new_tag').read()[0]
+        action['context'] = {
+            'default_name': self.tag_name,
+            'default_ticket_ids': [(6, 0, self.ids)]
+        }
+        self.tag_name = False
+        return action
+
+    # -------------------- v11 --------------------
+
+    @api.depends('action_ids.time')
+    def _get_time(self):
+        for ticket in self:
+            ticket.tiempo = sum(ticket.action_ids.mapped('time'))
+
+    #@api.depends('tiempo')
+    def _set_time(self):
+        for ticket in self:  
+            if ticket.tiempo:
+                tiempo_actual = sum(ticket.action_ids.mapped('time'))
+                time_nuevo = ticket.tiempo - tiempo_actual
+                if time_nuevo:
+                    data = {'name': '/', 'date': fields.Date.today(), 'time': time_nuevo, 'ticket_id': ticket.id}
+                    self.env['helpdesk.ticket.action'].create(data)
+
+    # ---------------------------------------------
+
+
+
