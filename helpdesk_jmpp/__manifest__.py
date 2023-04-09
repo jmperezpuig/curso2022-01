@@ -7,6 +7,7 @@
     "license": "AGPL-3",
     "depends": [
         "base",
+        "mail"
     ],
     "data": [
         "security/helpdesk_security.xml",

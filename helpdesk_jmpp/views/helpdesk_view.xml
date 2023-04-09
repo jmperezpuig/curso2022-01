@@ -42,6 +42,11 @@
                     <div>
                     <group>
                         <group>
+                            <!-- v13 -->
+                            <field name="partner_id" 
+                                context="{'default_company_type': 'person','default_user_id': user_id}"
+                                domain="[('is_company', '=', False)]"/>
+                            <!-- v13 -->
                             <field name="fecha"/>
                             <field name="fecha_limite"/>
                         </group>
@@ -93,6 +98,13 @@
                         </page>
                     </notebook>
                 </sheet>
+                <!-- v13 -->
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids" options="{'post_refresh': 'recipients'}"/>
+                </div>
+                <!-- v13 -->
             </form>
         </field>
     </record>
@@ -155,6 +167,10 @@
         <field name="model">helpdesk.ticket</field>
         <field name="arch" type="xml">
             <kanban default_group_by='user_id'>
+                <!-- v13 -->
+                <field name="activity_ids"/>
+                <field name="activity_state"/>
+                <!-- v13 -->
                 <templates>
                     <t t-name='kanban-box'>
                         <div t-attf-class='oe_kanban_content oe_kanban_global_click'>
@@ -165,6 +181,13 @@
                                 <field name='fecha'/>
                                 <field name='tiempo'/>
                             </div>
+                            <!-- v13 -->
+                            <div class="oe_kanban_bottom_left">
+                                <div class="o_kanban_inline_block">
+                                    <field name="activity_ids" widget="kanban_activity"/>
+                                </div>
+                            </div>
+                            <!-- v13 -->
                             <div class='o_kanban_record_bottom'>
                                 <div class='oe_kanban_bottom_right'>
                                     <field name='user_id' widget='many2one_avatar_user'/>

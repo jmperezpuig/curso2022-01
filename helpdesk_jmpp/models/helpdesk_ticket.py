@@ -43,6 +43,15 @@ class HelpdeskTicket(models.Model):
     _name = 'helpdesk.ticket'  
     _description = 'Ticket'
 
+    # -------------------  v13  --------------------
+    _inherit = [
+        'mail.thread.cc',
+        'mail.thread.blacklist',
+        'mail.activity.mixin']
+    
+    _primary_email = 'email_from'
+    # -------------------  v13  --------------------
+
     # ---------------- v10 --------------------
 
     # def _date_default_today(self):
@@ -91,6 +100,14 @@ class HelpdeskTicket(models.Model):
         comodel_name='res.users', 
         string='Asignado a')
     
+    # -------------------  v13  --------------------
+    partner_id = fields.Many2one(
+        comodel_name='res.partner', 
+        string='Partner v13')
+    # -------------------  v13  --------------------
+    email_from = fields.Char(string='Email from')
+    # -------------------  v13  --------------------
+
 
     # Estados = Nuevo Asignado En proceso Pendiente Resuelto Cancelado
     state = fields.Selection(
